@@ -30,7 +30,7 @@ RUN set -eux; \
 
 RUN mkdir -p /root/.voidcoin
 
-COPY entrypoint.sh /entrypoint.sh
+COPY docker/node/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 EXPOSE 7777 7778 28332
