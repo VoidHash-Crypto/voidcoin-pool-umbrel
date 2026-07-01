@@ -2,25 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Pool Settings - Void Pool</title>
     <style>
         :root {
-            --bg: #0a0a0a;
-            --card: #111;
-            --border: #222;
+            --bg: #050210;
+            --card: rgba(12,6,24,0.96);
+            --border: rgba(155,108,247,0.2);
             --text: #fff;
             --text-dim: #888;
-            --green: #0ac18e;
-            --green-dark: #089e74;
+            --green: #9b6cf7;
+            --green-dark: #7a4fd6;
             --red: #ff4757;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg);
+            font-family: 'Space Grotesk', -apple-system, sans-serif;
+            background: #050210;
             color: var(--text);
             min-height: 100vh;
             padding: 16px;
@@ -36,7 +38,6 @@
         .logo {
             width: 40px;
             height: 40px;
-            background: var(--green);
             border-radius: 10px;
             display: flex;
             align-items: center;
@@ -85,13 +86,13 @@
         }
         .form-input {
             width: 100%;
-            background: var(--bg);
+            background: #050210;
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 12px;
             color: var(--text);
             font-size: 14px;
-            font-family: 'SF Mono', monospace;
+            font-family: 'JetBrains Mono', monospace;
         }
         .form-input:focus {
             outline: none;

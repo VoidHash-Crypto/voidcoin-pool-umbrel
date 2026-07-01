@@ -2,25 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Void Pool</title>
     <style>
         :root {
-            --bg: #0a0a0a;
-            --card: #111;
-            --border: #222;
+            --bg: #050210;
+            --card: rgba(12,6,24,0.96);
+            --border: rgba(155,108,247,0.2);
             --text: #fff;
             --text-dim: #888;
-            --green: #0ac18e;
-            --green-dark: #089e74;
+            --green: #9b6cf7;
+            --green-dark: #7a4fd6;
             --red: #ff4757;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg);
+            font-family: 'Space Grotesk', -apple-system, sans-serif;
+            background: #050210;
             color: var(--text);
             min-height: 100vh;
             padding: 16px;
@@ -36,7 +38,6 @@
         .logo {
             width: 40px;
             height: 40px;
-            background: var(--green);
             border-radius: 10px;
             display: flex;
             align-items: center;
@@ -97,7 +98,7 @@
             margin-bottom: 16px;
         }
         .balance-label { font-size: 13px; opacity: 0.8; margin-bottom: 4px; }
-        .balance-value { font-size: 36px; font-weight: 700; font-family: 'SF Mono', monospace; }
+        .balance-value { font-size: 36px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
         .balance-value small { font-size: 16px; opacity: 0.8; }
         .balance-sub { font-size: 13px; opacity: 0.7; margin-top: 8px; }
 
@@ -117,7 +118,7 @@
             font-size: 20px;
             font-weight: 600;
             color: var(--green);
-            font-family: 'SF Mono', monospace;
+            font-family: 'JetBrains Mono', monospace;
         }
         .stat-label {
             font-size: 11px;
@@ -165,8 +166,8 @@
         }
         .worker-status.online { background: var(--green); box-shadow: 0 0 8px var(--green); }
         .worker-status.offline { background: var(--red); }
-        .worker-name { flex: 1; font-size: 13px; font-family: 'SF Mono', monospace; }
-        .worker-hashrate { font-size: 13px; color: var(--green); font-family: 'SF Mono', monospace; }
+        .worker-name { flex: 1; font-size: 13px; font-family: 'JetBrains Mono', monospace; }
+        .worker-hashrate { font-size: 13px; color: var(--green); font-family: 'JetBrains Mono', monospace; }
 
         .block-row {
             display: flex;
@@ -182,12 +183,12 @@
             border-radius: 6px;
             font-size: 12px;
             font-weight: 600;
-            font-family: 'SF Mono', monospace;
+            font-family: 'JetBrains Mono', monospace;
             margin-right: 12px;
         }
         .block-info { flex: 1; }
         .block-time { font-size: 12px; color: var(--text-dim); }
-        .block-reward { font-size: 14px; font-weight: 600; color: var(--green); font-family: 'SF Mono', monospace; }
+        .block-reward { font-size: 14px; font-weight: 600; color: var(--green); font-family: 'JetBrains Mono', monospace; }
 
         .pool-stats {
             display: grid;
@@ -202,7 +203,7 @@
             padding: 12px;
             text-align: center;
         }
-        .pool-stat-value { font-size: 14px; font-weight: 600; color: var(--green); font-family: 'SF Mono', monospace; }
+        .pool-stat-value { font-size: 14px; font-weight: 600; color: var(--green); font-family: 'JetBrains Mono', monospace; }
         .pool-stat-label { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
 
         .connect-info {
@@ -216,7 +217,7 @@
             background: #000;
             padding: 12px;
             border-radius: 8px;
-            font-family: 'SF Mono', monospace;
+            font-family: 'JetBrains Mono', monospace;
             font-size: 12px;
             word-break: break-all;
             color: var(--green);
