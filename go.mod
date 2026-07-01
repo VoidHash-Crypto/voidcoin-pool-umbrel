@@ -1,4 +1,4 @@
-module github.com/bch2/forge-pool
+module github.com/voidhash-crypto/voidcoin-pool
 
 go 1.22
 

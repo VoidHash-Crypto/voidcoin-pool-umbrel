@@ -697,7 +697,7 @@ func (s *Server) handleSubscribe(client *Client, req *Request) *Response {
 	if client.ExtraNonce2Size == 0 {
 		client.ExtraNonce2Size = 4
 	}
-	client.SubscriptionID = fmt.Sprintf("forge_%s", client.ID)
+	client.SubscriptionID = fmt.Sprintf("voidcoin_%s", client.ID)
 	client.Subscribed = true
 
 	result := []interface{}{
@@ -1499,17 +1499,17 @@ func parseUsername(username string) (minerID, workerName string) {
 		workerName = "default"
 	}
 
-	// Normalize address: ensure bitcoincashii: prefix (lowercase)
+	// Normalize address: ensure voidcoin: prefix (lowercase)
 	minerID = normalizeMinerAddress(minerID)
 
 	// CashAddr is exactly 42 chars after prefix. If extra chars remain
 	// (e.g. NiceHash appends worker suffix without dot separator),
 	// split them off as worker name.
-	if strings.HasPrefix(minerID, "bitcoincashii:") {
-		hash := minerID[len("bitcoincashii:"):]
+	if strings.HasPrefix(minerID, "voidcoin:") {
+		hash := minerID[len("voidcoin:"):]
 		if len(hash) > 42 {
 			extra := hash[42:]
-			minerID = "bitcoincashii:" + hash[:42]
+			minerID = "voidcoin:" + hash[:42]
 			if workerName == "default" {
 				workerName = extra
 			}
@@ -1519,50 +1519,31 @@ func parseUsername(username string) (minerID, workerName string) {
 	return
 }
 
-// normalizeMinerAddress ensures the address has the correct bitcoincashii: prefix
+// normalizeMinerAddress ensures the address has the correct voidcoin: prefix
 // Returns empty string for invalid/rejected address formats
 func normalizeMinerAddress(addr string) string {
-	// Convert to lowercase for comparison
-	lowerAddr := strings.ToLower(addr)
-
-	// REJECT bitcoincash2: prefix - invalid format
-	if strings.HasPrefix(lowerAddr, "bitcoincash2:") {
-		return "" // Signal rejection
+	// VoidCoin accepts three address formats:
+	//   3...    P2SH  (base58check, version 0x05)
+	//   V...    P2PKH (base58check, version 0x46)
+	//   vqr1... P2QR  (bech32, HRP "vqr")
+	addr = strings.TrimSpace(addr)
+	if addr == "" {
+		return ""
 	}
-
-	// If already has correct prefix, validate it has an actual hash after the prefix
-	if strings.HasPrefix(lowerAddr, "bitcoincashii:") {
-		hash := lowerAddr[len("bitcoincashii:"):]
-		if len(hash) < 42 || (hash[0] != 'q' && hash[0] != 'p') {
-			return "" // Reject: prefix without valid hash
-		}
-		return lowerAddr
+	// Strip worker suffix (e.g. address.worker or address.worker.solo)
+	// We normalise only the address part — caller handles worker split
+	// P2QR: starts with vqr1
+	if strings.HasPrefix(strings.ToLower(addr), "vqr1") {
+		return strings.ToLower(addr)
 	}
-
-	// Handle truncated prefix: bitcoinii: -> bitcoincashii: (WhatsMiner firmware bug)
-	if strings.HasPrefix(lowerAddr, "bitcoinii:") {
-		hash := lowerAddr[len("bitcoinii:"):]
-		if len(hash) >= 42 && (hash[0] == 'q' || hash[0] == 'p') {
-			return "bitcoincashii:" + hash
-		}
-		return "" // Reject: invalid hash after prefix
+	// P2SH starts with 3, P2PKH starts with V — base58check is case-sensitive
+	if strings.HasPrefix(addr, "3") || strings.HasPrefix(addr, "V") {
+		return addr
 	}
-
-	// Reject bare prefix variants with no hash (firmware truncation)
-	if lowerAddr == "bitcoincashii" || lowerAddr == "bitcoincash" || lowerAddr == "bitcoinii" {
-		return "" // Signal rejection
-	}
-
-	// If it's just the hash part (starts with 'q' for mainnet), add prefix
-	if len(addr) >= 42 && (strings.HasPrefix(lowerAddr, "q") || strings.HasPrefix(lowerAddr, "p")) {
-		return "bitcoincashii:" + lowerAddr
-	}
-
-	// Reject anything else that isn't a valid address
-	return ""
+	// Unknown format — return as-is and let validation reject it
+	return addr
 }
 
-// normalizeHex pads a hex string to the required length with leading zeros
 func normalizeHex(s string, length int) string {
 	// Remove any "0x" prefix
 	s = strings.TrimPrefix(s, "0x")

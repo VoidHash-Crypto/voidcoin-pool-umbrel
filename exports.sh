@@ -16,7 +16,7 @@ else
 fi
 
 # User-configurable settings (can be changed in Umbrel UI)
-export POOL_NAME="${POOL_NAME:-My Forge Pool}"
+export POOL_NAME="${POOL_NAME:-My Void Pool}"
 export POOL_FEE="${POOL_FEE:-1.0}"
 export POOL_ADDRESS="${POOL_ADDRESS:-}"
 export MIN_PAYOUT="${MIN_PAYOUT:-5}"

@@ -22,10 +22,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/bch2/forge-pool/internal/mining"
-	"github.com/bch2/forge-pool/internal/stats"
-	"github.com/bch2/forge-pool/internal/stratum"
-	"github.com/bch2/forge-pool/internal/stratumv2"
+	"github.com/voidhash-crypto/voidcoin-pool/internal/mining"
+	"github.com/voidhash-crypto/voidcoin-pool/internal/stats"
+	"github.com/voidhash-crypto/voidcoin-pool/internal/stratum"
+	"github.com/voidhash-crypto/voidcoin-pool/internal/stratumv2"
 	"github.com/go-zeromq/zmq4"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -150,7 +150,7 @@ func startPayoutProcessor() {
 			totalDust := stats.GetTotalDust(currentHeight, minPayout)
 			if totalDust > 0 {
 				dustCount := len(stats.GetDustBalances(currentHeight, minPayout))
-				log.Printf("Dust balances: %.8f BCH2 across %d miners (below %.2f min payout)",
+				log.Printf("Dust balances: %.8f VOID across %d miners (below %.2f min payout)",
 					totalDust, dustCount, minPayout)
 			}
 		}
@@ -213,7 +213,7 @@ func startPayoutProcessor() {
 				// Update memory with partial payment tracking
 				stats.MarkMaturePaidWithAmount(address, currentHeight, txid, payAmount)
 
-				log.Printf("Payout sent: %s -> %.8f BCH2 (txid: %s)%s",
+				log.Printf("Payout sent: %s -> %.8f VOID (txid: %s)%s",
 					address, payAmount, txid,
 					func() string {
 						if remainingAmount > 0 {
@@ -227,7 +227,7 @@ func startPayoutProcessor() {
 			if len(txids) > 0 {
 				delete(failedPayouts, address)
 				if len(txids) > 1 {
-					log.Printf("Split payout complete for %s: %d transactions, total %.8f BCH2",
+					log.Printf("Split payout complete for %s: %d transactions, total %.8f VOID",
 						address, len(txids), amount)
 				}
 			}
@@ -444,7 +444,7 @@ func sendWebhookAlert(event string, data map[string]interface{}) {
 	payload := map[string]interface{}{
 		"event":     event,
 		"timestamp": time.Now().UTC().Format(time.RFC3339),
-		"pool":      "Forge Pool",
+		"pool":      "Void Pool",
 		"data":      data,
 	}
 
@@ -546,7 +546,7 @@ func main() {
 	}
 	defer logger.Sync()
 
-	logger.Info("🔥 Forge Pool - BCH2 Mining Pool")
+	logger.Info("🔥 Void Pool - VOID Mining Pool")
 
 	// Initialize database with credentials from environment
 	dbConnStr := stats.GetDBConnStr()
@@ -634,11 +634,11 @@ func main() {
 		poolAddress = loadPoolAddressFromConfig()
 	}
 	if poolAddress == "" {
-		logger.Fatal("❌ POOL_ADDRESS is required. Set your BCH2 wallet address in Settings before mining.")
+		logger.Fatal("❌ POOL_ADDRESS is required. Set your VOID wallet address in Settings before mining.")
 	}
 	// Validate address format
-	if !strings.HasPrefix(poolAddress, "bitcoincashii:q") {
-		logger.Fatal("❌ Invalid pool address format. Must be a BCH2 address starting with 'bitcoincashii:q'",
+	if !strings.HasPrefix(poolAddress, "void:q") {
+		logger.Fatal("❌ Invalid pool address format. Must be a VoidCoin address starting with 'void:q'",
 			zap.String("address", poolAddress))
 	}
 
@@ -685,8 +685,8 @@ func main() {
 		zap.Int("target_time", serverConfig.TargetShareTime),
 		zap.Int("retarget_time", serverConfig.RetargetTime))
 
-	// Load coinbase tag from user config, default to "Forge"
-	coinbaseTag := "Forge"
+	// Load coinbase tag from user config, default to "VoidCoin"
+	coinbaseTag := "VoidCoin"
 	if userConfig := loadPoolConfigFromJSON(); userConfig != nil && userConfig.CoinbaseTag != "" {
 		coinbaseTag = userConfig.CoinbaseTag
 	}
@@ -1206,7 +1206,7 @@ func (p *BlockFindingShareProcessor) submitBlock(share *stratum.Share) {
 					}
 					minerPayout := payoutAmount * proportion
 
-					// Skip dust amounts (< 0.00001 BCH2)
+					// Skip dust amounts (< 0.00001 VOID)
 					if minerPayout < 0.00001 {
 						continue
 					}
@@ -1566,7 +1566,7 @@ func startStatsServer() {
 		minerID := r.URL.Query().Get("miner")
 
 		// Validate miner address format first
-		if minerID == "" || !strings.HasPrefix(minerID, "bitcoincash") {
+		if minerID == "" || !strings.HasPrefix(minerID, "3") && !strings.HasPrefix(minerID, "V") && !strings.HasPrefix(strings.ToLower(minerID), "vqr1") {
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(map[string]interface{}{"success": false, "error": "Invalid miner address"})
 			return
@@ -1639,7 +1639,7 @@ func startStatsServer() {
 			lastTxid = txid
 			totalSent += payAmount
 			remaining -= payAmount
-			log.Printf("💰 Manual payout: %s -> %.2f BCH2 (txid: %s)", minerID, payAmount, txid)
+			log.Printf("💰 Manual payout: %s -> %.2f VOID (txid: %s)", minerID, payAmount, txid)
 		}
 
 		// Finalize the payout with actual txid

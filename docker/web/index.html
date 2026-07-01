@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Forge Pool</title>
+    <title>Void Pool</title>
     <style>
         :root {
             --bg: #0a0a0a;
@@ -232,7 +232,7 @@
 <body>
     <div class="header">
         <div class="logo">F</div>
-        <h1>Forge Pool</h1>
+        <h1>Void Pool</h1>
         <div class="status">
             <div class="status-dot"></div>
             <span id="uptime">--</span>
@@ -256,8 +256,8 @@
 
     <div class="balance-card">
         <div class="balance-label">Balance</div>
-        <div class="balance-value" id="balance">0.00 <small>BCH2</small></div>
-        <div class="balance-sub" id="balanceSub">+ 0.00 BCH2 immature</div>
+        <div class="balance-value" id="balance">0.00 <small>VOID</small></div>
+        <div class="balance-sub" id="balanceSub">+ 0.00 VOID immature</div>
     </div>
 
     <div class="stats-grid">
@@ -447,7 +447,7 @@
                     <div class="block-info">
                         <div class="block-time">${escapeHtml(timeAgo(b.time * 1000))}</div>
                     </div>
-                    <div class="block-reward">${escapeHtml((b.reward || 50).toFixed(2))} BCH2</div>
+                    <div class="block-reward">${escapeHtml((b.reward || 50).toFixed(2))} VOID</div>
                 </div>
             `).join('');
         }

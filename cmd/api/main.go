@@ -17,8 +17,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/bch2/forge-pool/internal/config"
-	"github.com/bch2/forge-pool/internal/stats"
+	"github.com/voidhash-crypto/voidcoin-pool/internal/config"
+	"github.com/voidhash-crypto/voidcoin-pool/internal/stats"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
@@ -37,7 +37,7 @@ var (
 	rpcPass          string
 	stratumURL       string
 	internalAPIToken string
-	halvingInterval  int64 = 210000 // BCH2 halving interval, configurable via HALVING_INTERVAL env
+	halvingInterval  int64 = 210000 // VOID halving interval, configurable via HALVING_INTERVAL env
 	dataDir          string         // Data directory for persistent config
 
 	// Block cache to avoid N+1 RPC queries
@@ -103,16 +103,16 @@ func verifyCashAddrChecksum(prefix string, payload []int) bool {
 	return cashAddrPolymod(combined) == 0
 }
 
-// isValidBCH2Address validates a BCH2/Bitcoin Cash address format with full checksum
-func isValidBCH2Address(address string) bool {
+// isValidVOIDAddress validates a VOID/Bitcoin Cash address format with full checksum
+func isValidVOIDAddress(address string) bool {
 	if address == "" {
 		return false
 	}
 
 	// Check for valid prefixes and extract prefix + payload
 	validPrefixes := []string{
-		"bitcoincashii:",
-		"bitcoincash:",
+		"void:",
+		"void:",
 		"bchtest:",
 	}
 
@@ -134,8 +134,8 @@ func isValidBCH2Address(address string) bool {
 		if len(address) > 0 {
 			first := address[0]
 			if first == 'q' || first == 'p' {
-				// CashAddr without prefix - assume bitcoincash
-				prefix = "bitcoincash"
+				// VoidCoin address without recognised prefix
+				prefix = "void"
 				payload = address
 				hasValidPrefix = true
 			} else if first == '1' || first == '3' {
@@ -175,21 +175,21 @@ func isValidBCH2Address(address string) bool {
 	return verifyCashAddrChecksum(prefix, payloadValues)
 }
 
-// normalizeAddress strips the prefix from a BCH2 address for comparison
+// normalizeAddress strips the prefix from a VoidCoin address for comparison
 func normalizeAddress(address string) string {
 	// Lowercase for consistent comparison (stratum stores addresses lowercase)
 	address = strings.ToLower(address)
 	// Strip any known prefix to get the bare hash
-	prefixes := []string{"bitcoincashii:", "bitcoincash:", "bchtest:"}
+	prefixes := []string{"void:", "void:", "bchtest:"}
 	for _, prefix := range prefixes {
 		if len(address) > len(prefix) && address[:len(prefix)] == prefix {
-			// Always return with canonical bitcoincashii: prefix
-			return "bitcoincashii:" + address[len(prefix):]
+			// Always return with canonical void: prefix
+			return "void:" + address[len(prefix):]
 		}
 	}
 	// Bare hash (q... or p...) - add canonical prefix
 	if len(address) >= 42 && (address[0] == 'q' || address[0] == 'p') {
-		return "bitcoincashii:" + address
+		return "void:" + address
 	}
 	return address
 }
@@ -229,7 +229,7 @@ func init() {
 		stratumURL = "http://127.0.0.1:3337"
 	}
 	internalAPIToken = os.Getenv("INTERNAL_API_TOKEN")
-	// BCH2 halving interval (default 210000, same as Bitcoin/BCH)
+	// VOID halving interval (default 210000, same as Bitcoin/BCH)
 	if envHalving := os.Getenv("HALVING_INTERVAL"); envHalving != "" {
 		if h, err := strconv.ParseInt(envHalving, 10, 64); err == nil && h > 0 {
 			halvingInterval = h
@@ -273,7 +273,7 @@ func main() {
 	}
 	defer zapLogger.Sync()
 
-	zapLogger.Info("🔥 Forge Pool API Server")
+	zapLogger.Info("🔥 Void Pool API Server")
 
 	// Initialize database connection for settings persistence
 	dbConnStr := stats.GetDBConnStr()
@@ -296,7 +296,7 @@ func main() {
 	defer stats.CloseDB()
 
 	app := fiber.New(fiber.Config{
-		AppName: "Forge Pool API",
+		AppName: "Void Pool API",
 	})
 
 	app.Use(logger.New())
@@ -438,7 +438,7 @@ pool_uptime_seconds %.0f
 			}
 		}
 		if !rpcHealthy {
-			checks["node"] = fiber.Map{"status": "unhealthy", "error": "Cannot connect to BCH2 node"}
+			checks["node"] = fiber.Map{"status": "unhealthy", "error": "Cannot connect to VoidCoin node"}
 			health["status"] = "degraded"
 		}
 
@@ -834,7 +834,7 @@ func getBlocksAPI(c *fiber.Ctx) error {
 			"height":    b.Height,
 			"hash":      b.Hash,
 			"time":      b.Time,
-			"miner":     "Forge Pool",
+			"miner":     "Void Pool",
 			"reward":    b.Reward,
 			"confirmed": b.Status == "confirmed" || (currentHeight > 0 && currentHeight-b.Height >= 6),
 			"type":      blockType,
@@ -862,8 +862,8 @@ func getMiner(c *fiber.Ctx) error {
 	address, _ := url.QueryUnescape(c.Params("address"))
 
 	// Validate address format to prevent injection attacks
-	if !isValidBCH2Address(address) {
-		return c.Status(400).JSON(fiber.Map{"error": "Invalid BCH2 address format"})
+	if !isValidVOIDAddress(address) {
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid VoidCoin address format"})
 	}
 
 	workers := getStratumWorkers()
@@ -954,8 +954,8 @@ func getMiner(c *fiber.Ctx) error {
 
 func getMinerWorkers(c *fiber.Ctx) error {
 	address, _ := url.QueryUnescape(c.Params("address"))
-	if !isValidBCH2Address(address) {
-		return c.Status(400).JSON(fiber.Map{"error": "Invalid BCH2 address format"})
+	if !isValidVOIDAddress(address) {
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid VoidCoin address format"})
 	}
 	allWorkers := getStratumWorkers()
 
@@ -1130,8 +1130,8 @@ func saveMinerSettings(c *fiber.Ctx) error {
 
 func getMinerSettingsAPI(c *fiber.Ctx) error {
 	address, _ := url.QueryUnescape(c.Params("address"))
-	if !isValidBCH2Address(address) {
-		return c.Status(400).JSON(fiber.Map{"error": "Invalid BCH2 address format"})
+	if !isValidVOIDAddress(address) {
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid VoidCoin address format"})
 	}
 
 	settingsMu.RLock()
@@ -1161,8 +1161,8 @@ func getMinerSettingsAPI(c *fiber.Ctx) error {
 
 func getMinerBlocks(c *fiber.Ctx) error {
 	address, _ := url.QueryUnescape(c.Params("address"))
-	if !isValidBCH2Address(address) {
-		return c.Status(400).JSON(fiber.Map{"error": "Invalid BCH2 address format"})
+	if !isValidVOIDAddress(address) {
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid VoidCoin address format"})
 	}
 
 	// Fetch PPLNS block contributions from stratum internal endpoint
@@ -1204,8 +1204,8 @@ func getMinerBlocks(c *fiber.Ctx) error {
 
 func getMinerSoloBlocks(c *fiber.Ctx) error {
 	address, _ := url.QueryUnescape(c.Params("address"))
-	if !isValidBCH2Address(address) {
-		return c.Status(400).JSON(fiber.Map{"error": "Invalid BCH2 address format"})
+	if !isValidVOIDAddress(address) {
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid VoidCoin address format"})
 	}
 
 	// Fetch solo blocks found by this miner
@@ -1226,8 +1226,8 @@ func getMinerSoloBlocks(c *fiber.Ctx) error {
 
 func getMinerPayouts(c *fiber.Ctx) error {
 	address, _ := url.QueryUnescape(c.Params("address"))
-	if !isValidBCH2Address(address) {
-		return c.Status(400).JSON(fiber.Map{"error": "Invalid BCH2 address format"})
+	if !isValidVOIDAddress(address) {
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid VoidCoin address format"})
 	}
 
         // Fetch from stratum internal endpoint (use normalized address for lookup)
@@ -1264,8 +1264,8 @@ func getMinerPayouts(c *fiber.Ctx) error {
 
 func getMinerSoloPayouts(c *fiber.Ctx) error {
 	address, _ := url.QueryUnescape(c.Params("address"))
-	if !isValidBCH2Address(address) {
-		return c.Status(400).JSON(fiber.Map{"error": "Invalid BCH2 address format"})
+	if !isValidVOIDAddress(address) {
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid VoidCoin address format"})
 	}
 
 	// Fetch from stratum internal endpoint (use normalized address for lookup)
@@ -1334,7 +1334,7 @@ func requestPayout(c *fiber.Ctx) error {
 
 	minPayout := 5.0 // Minimum payout threshold
 	if balanceData.MatureBalance < minPayout {
-		return c.JSON(fiber.Map{"success": false, "error": fmt.Sprintf("Minimum payout is %.1f BCH2", minPayout)})
+		return c.JSON(fiber.Map{"success": false, "error": fmt.Sprintf("Minimum payout is %.1f VOID", minPayout)})
 	}
 
 	// Trigger payout via stratum internal endpoint (use normalized address)
@@ -1429,7 +1429,7 @@ func healthCheck(c *fiber.Ctx) error {
 	})
 }
 
-// getNodeStatus returns the BCH2 node sync status for UI display
+// getNodeStatus returns the VoidCoin node sync status for UI display
 func getNodeStatus(c *fiber.Ctx) error {
 	// Get blockchain info
 	infoResult, err := rpcCall("getblockchaininfo", []interface{}{})

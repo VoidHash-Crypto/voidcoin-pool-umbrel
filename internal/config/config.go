@@ -26,11 +26,11 @@ func GetDefaults() *PoolConfig {
 	return &PoolConfig{
 		StratumPort:    3333,
 		PoolWallet:     "",
-		PoolName:       "My Forge Pool",
+		PoolName:       "My Void Pool",
 		PoolFee:        1.0,
 		SoloFee:        0.5,
 		MinPayout:      5.0,
-		CoinbaseTag:    "Forge",
+		CoinbaseTag:    "VoidCoin",
 		VardiffMinDiff: 32768,
 		UpdatedAt:      time.Now(),
 	}
@@ -105,7 +105,7 @@ func ValidateConfig(cfg *PoolConfig) error {
 	}
 
 	if cfg.PoolName == "" {
-		cfg.PoolName = "My Forge Pool"
+		cfg.PoolName = "My Void Pool"
 	}
 
 	// Validate CoinbaseTag: 1-20 chars, ASCII printable only

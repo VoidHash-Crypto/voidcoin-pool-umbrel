@@ -5,7 +5,7 @@ import "time"
 // Mining constants
 const (
 	// COINBASE_MATURITY is the number of confirmations required before
-	// block rewards can be spent (BCH2 uses same as Bitcoin Cash)
+	// block rewards can be spent (VOID uses same as Bitcoin Cash)
 	COINBASE_MATURITY = 100
 
 	// DBTimeout is the default timeout for database operations

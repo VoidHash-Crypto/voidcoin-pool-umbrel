@@ -1,6 +1,6 @@
-# Forge Pool for Umbrel
+# Void Pool for Umbrel
 
-Self-hosted BCH2 mining pool for Umbrel.
+Self-hosted VoidCoin mining pool for Umbrel.
 
 ## Installation
 
@@ -8,17 +8,17 @@ Self-hosted BCH2 mining pool for Umbrel.
 
 1. Open your Umbrel dashboard
 2. Go to **App Store** → **Community App Stores** (three dots menu)
-3. Add this URL: `https://github.com/BitcoincashII/umbrel-app-store`
-4. Find "Forge Pool" in the app store and click **Install**
+3. Add this URL: `https://github.com/VoidHash-Crypto/umbrel-app-store`
+4. Find "Void Pool" in the app store and click **Install**
 
 ### Option 2: Standalone Docker Compose
 
-Run Forge Pool on any server (not just Umbrel):
+Run Void Pool on any server (not just Umbrel):
 
 ```bash
 # Clone the repo
-git clone https://github.com/BitcoincashII/forge-pool-umbrel.git
-cd forge-pool-umbrel
+git clone https://github.com/VoidHash-Crypto/void-pool-umbrel.git
+cd void-pool-umbrel
 
 # Copy and configure environment
 cp .env.example .env
@@ -28,7 +28,7 @@ sed -i "s/NODE_RPC_PASSWORD=.*/NODE_RPC_PASSWORD=$(openssl rand -hex 32)/" .env
 sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$(openssl rand -hex 32)/" .env
 
 # Set your pool address (REQUIRED - edit this file)
-nano .env  # Set POOL_ADDRESS to your BCH2 address
+nano .env  # Set POOL_ADDRESS to your VoidCoin address
 
 # Start all services
 docker compose up -d
@@ -36,8 +36,8 @@ docker compose up -d
 
 ## Quick Start
 
-1. Install Forge Pool using one of the methods above
-2. Wait for the BCH2 node to sync (first sync takes 15-30 minutes)
+1. Install Void Pool using one of the methods above
+2. Wait for the VoidCoin node to sync (first sync takes 15-30 minutes)
 3. Open the web UI at `http://umbrel.local:3080`
 4. Point your miners to `stratum+tcp://umbrel.local:3333`
 
@@ -45,7 +45,7 @@ docker compose up -d
 
 ```
 URL: stratum+tcp://YOUR_UMBREL_IP:3333
-Username: YOUR_BCH2_ADDRESS.WORKER_NAME
+Username: YOUR_VOID_ADDRESS.WORKER_NAME
 Password: x
 ```
 
@@ -58,8 +58,8 @@ Password: x
 
 **Examples:**
 ```
-bitcoincashii:qr08krt...7gnl732fwz.rig1       → PPLNS
-bitcoincashii:qr08krt...7gnl732fwz.rig1.solo  → Solo
+void:qr08krt...7gnl732fwz.rig1       → PPLNS
+void:qr08krt...7gnl732fwz.rig1.solo  → Solo
 ```
 
 ## Configuration
@@ -68,11 +68,11 @@ Edit `.env` or configure via Umbrel app settings:
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `POOL_ADDRESS` | (required) | Your BCH2 address for pool fees |
-| `POOL_NAME` | My Forge Pool | Pool name shown in UI |
+| `POOL_ADDRESS` | (required) | Your VoidCoin address for pool fees |
+| `POOL_NAME` | My Void Pool | Pool name shown in UI |
 | `POOL_FEE` | 1.0 | PPLNS fee percentage |
 | `SOLO_FEE` | 0.5 | Solo mining fee percentage |
-| `MIN_PAYOUT` | 5 | Minimum BCH2 for auto-payout |
+| `MIN_PAYOUT` | 5 | Minimum VOID for auto-payout |
 | `STRATUM_PORT` | 3333 | Stratum port for miners |
 | `APP_PORT` | 3080 | Web UI port |
 
@@ -86,7 +86,7 @@ Edit `.env` or configure via Umbrel app settings:
 ## Data Storage
 
 All data stored in the app data directory:
-- `node/` - BCH2 blockchain (pruned, ~500MB)
+- `node/` - VOID blockchain (pruned, ~500MB)
 - `postgres/` - Pool database
 - `redis/` - Cache
 
@@ -94,7 +94,7 @@ All data stored in the app data directory:
 
 **Node not syncing?**
 ```bash
-docker logs forge-node
+docker logs void-node
 ```
 
 **Miners can't connect?**
@@ -120,6 +120,6 @@ To build the Docker images yourself instead of using pre-built images:
 
 ## Support
 
-- Issues: https://github.com/BitcoincashII/forge-pool-umbrel/issues
-- Website: https://hashforge.bch2.org
-- Main Pool: https://hashforge.bch2.org (use this if you just want to mine without running your own pool)
+- Issues: https://github.com/VoidHash-Crypto/void-pool-umbrel/issues
+- Website: https://hashforge.void.org
+- Main Pool: https://hashforge.void.org (use this if you just want to mine without running your own pool)

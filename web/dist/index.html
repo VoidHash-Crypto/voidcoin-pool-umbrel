@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Forge Pool</title>
+    <title>Void Pool</title>
     <style>
         :root {
             --bg: #0a0a0a;
@@ -269,8 +269,8 @@
 <body>
     <div class="header">
         <div class="logo">F</div>
-        <h1>Forge Pool</h1>
-        <div class="node-status" id="nodeStatus" title="BCH2 Node Status">
+        <h1>Void Pool</h1>
+        <div class="node-status" id="nodeStatus" title="VOID Node Status">
             <div class="dot"></div>
             <span class="label">Checking...</span>
         </div>
@@ -278,7 +278,7 @@
 
     <div id="setupWarning" class="warning-banner hidden">
         <h3>⚠️ Setup Required</h3>
-        <p>Set your BCH2 wallet address in <a href="/settings">Settings</a> before mining.</p>
+        <p>Set your VOID wallet address in <a href="/settings">Settings</a> before mining.</p>
     </div>
 
     <div class="pool-stats">
@@ -298,8 +298,8 @@
 
     <div class="balance-card">
         <div class="balance-label">Balance</div>
-        <div class="balance-value" id="balance">0.00 <small>BCH2</small></div>
-        <div class="balance-sub" id="balanceSub">+ 0.00 BCH2 immature</div>
+        <div class="balance-value" id="balance">0.00 <small>VOID</small></div>
+        <div class="balance-sub" id="balanceSub">+ 0.00 VOID immature</div>
     </div>
 
     <div class="stats-grid">
@@ -486,9 +486,9 @@
                     const minerRes = await fetch(API + '/miners/' + encodeURIComponent(miners[0].address));
                     const miner = await minerRes.json();
                     document.getElementById('balance').innerHTML =
-                        (miner.matureBalance || 0).toFixed(2) + ' <small>BCH2</small>';
+                        (miner.matureBalance || 0).toFixed(2) + ' <small>VOID</small>';
                     document.getElementById('balanceSub').textContent =
-                        '+ ' + (miner.immatureBalance || 0).toFixed(2) + ' BCH2 immature';
+                        '+ ' + (miner.immatureBalance || 0).toFixed(2) + ' VOID immature';
                 }
             } catch (e) {
                 console.error('Failed to fetch miner:', e);
@@ -538,7 +538,7 @@
                     <div class="block-info">
                         <div class="block-time">${escapeHtml(timeAgo(blockTime))} ${b.type ? '(' + escapeHtml(b.type) + ')' : ''}</div>
                     </div>
-                    <div class="block-reward">${escapeHtml((b.reward || 50).toFixed(2))} BCH2</div>
+                    <div class="block-reward">${escapeHtml((b.reward || 50).toFixed(2))} VOID</div>
                 </div>
             `}).join('');
         }
@@ -565,7 +565,7 @@
                 } else {
                     el.classList.add('offline');
                     label.textContent = 'Node offline';
-                    el.title = data.message || 'BCH2 node is not responding';
+                    el.title = data.message || 'VoidCoin node is not responding';
                 }
             } catch (e) {
                 const el = document.getElementById('nodeStatus');

@@ -8,7 +8,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/big"
 	"net/http"
+	"strings"
 	"sync/atomic"
 	"time"
 )
@@ -33,7 +35,7 @@ type JobManager struct {
 	rpcURL          string
 	rpcUser         string
 	rpcPassword     string
-	pubkeyHash      []byte
+	outputScript    []byte
 	jobCounter      uint64
 	extranonce1Size int
 	extranonce2Size int
@@ -55,14 +57,14 @@ func NewJobManager(rpcURL, rpcUser, rpcPassword, poolAddress string, extranonce1
 	}
 	if pkh == nil {
 		// Fallback to local parsing if RPC fails
-		pkh = parseAddressToPubkeyHash(poolAddress)
+		pkh = parseAddressToScript(poolAddress)
 		if pkh != nil {
-			fmt.Printf("Pool address pubkey hash (from local parser): %s\n", hex.EncodeToString(pkh))
+			fmt.Printf("Pool address script (from local parser): %s\n", hex.EncodeToString(pkh))
 		}
 	}
 	if pkh == nil {
 		// No fallback - pool address is required
-		panic("FATAL: Could not parse pool address. Set a valid BCH2 address in Settings.")
+		panic("FATAL: Could not parse pool address. Set a valid VoidCoin address (3... P2SH or vqr1... P2QR) in Settings.")
 	}
 
 	// Use defaults if not specified
@@ -73,14 +75,14 @@ func NewJobManager(rpcURL, rpcUser, rpcPassword, poolAddress string, extranonce1
 		extranonce2Size = 4
 	}
 	if coinbaseTag == "" {
-		coinbaseTag = "Forge"
+		coinbaseTag = "VoidCoin"
 	}
 
 	return &JobManager{
 		rpcURL:          rpcURL,
 		rpcUser:         rpcUser,
 		rpcPassword:     rpcPassword,
-		pubkeyHash:      pkh,
+		outputScript:    pkh,
 		extranonce1Size: extranonce1Size,
 		extranonce2Size: extranonce2Size,
 		coinbaseTag:     coinbaseTag,
@@ -125,84 +127,156 @@ func getPubkeyHashFromNode(rpcURL, rpcUser, rpcPassword, address string) []byte 
 		return nil
 	}
 
-	// Extract pubkey hash from P2PKH scriptPubKey: 76a914<20-byte-hash>88ac
+	// Return full scriptPubKey bytes - supports P2PKH, P2SH, and P2QR
 	spk := rpcResp.Result.ScriptPubKey
-	if len(spk) == 50 && spk[:6] == "76a914" && spk[46:] == "88ac" {
-		pkh, err := hex.DecodeString(spk[6:46])
-		if err == nil && len(pkh) == 20 {
-			fmt.Printf("Pool address pubkey hash (from node): %s\n", spk[6:46])
-			return pkh
-		}
-	}
-
-	return nil
-}
-
-// parseAddressToPubkeyHash extracts the 20-byte pubkey hash from a BCH2 address
-func parseAddressToPubkeyHash(address string) []byte {
-	// Remove prefix - support all valid BCH/BCH2 prefixes
-	addr := address
-	prefixes := []string{"bitcoincashii:", "bitcoincash:", "bchtest:"}
-	for _, prefix := range prefixes {
-		if len(address) > len(prefix) && address[:len(prefix)] == prefix {
-			addr = address[len(prefix):]
-			break
-		}
-	}
-	// Decode cashaddr format (base32)
-	// BCH/BCH2 uses cashaddr which is base32 with charset: qpzry9x8gf2tvdw0s3jn54khce6mua7l
-	charset := "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
-
-	var data []byte
-	for _, c := range addr {
-		idx := -1
-		for i, ch := range charset {
-			if ch == c {
-				idx = i
-				break
-			}
-		}
-		if idx == -1 {
-			return nil
-		}
-		data = append(data, byte(idx))
-	}
-
-	if len(data) < 8 {
+	if spk == "" {
 		return nil
 	}
-
-	// Remove checksum (last 8 characters = 40 bits)
-	data = data[:len(data)-8]
-
-	// Convert from 5-bit to 8-bit
-	var result []byte
-	acc := 0
-	bits := 0
-	for _, d := range data {
-		acc = (acc << 5) | int(d)
-		bits += 5
-		for bits >= 8 {
-			bits -= 8
-			result = append(result, byte(acc>>bits))
-			acc &= (1 << bits) - 1
-		}
+	scriptBytes, err2 := hex.DecodeString(spk)
+	if err2 != nil || len(scriptBytes) == 0 {
+		return nil
 	}
+	fmt.Printf("Pool address script (from node): %s\n", spk)
+	return scriptBytes
+}
 
-	// First byte is version, rest is 20-byte hash
-	if len(result) >= 21 {
-		return result[1:21]
-	}
-	// Some CashAddr variants encode version in first char, resulting in exactly 20 bytes
-	if len(result) == 20 {
-		return result
-	}
-	return nil
+// parseAddressToScript converts a VoidCoin address to its output script bytes.
+// Supports:
+//   3...   = P2SH  (base58check version 0x05) -> OP_HASH160 <20> OP_EQUAL
+//   V...   = P2PKH (base58check version 0x46) -> OP_DUP OP_HASH160 <20> OP_EQUALVERIFY OP_CHECKSIG
+//   vqr1.. = P2QR  (bech32 HRP "vqr")        -> OP_RESERVED <32-byte program>
+func parseAddressToScript(address string) []byte {
+        // P2QR: vqr1... bech32 address
+        if len(address) > 4 && address[:4] == "vqr1" {
+                program := decodeBech32Program(address, "vqr")
+                if program != nil && len(program) == 32 {
+                        // OP_RESERVED (0x50) <push 32 bytes (0x20)> <32-byte program>
+                        script := make([]byte, 34)
+                        script[0] = 0x50
+                        script[1] = 0x20
+                        copy(script[2:], program)
+                        fmt.Printf("Pool address script (P2QR local): %s\n", hex.EncodeToString(script))
+                        return script
+                }
+                return nil
+        }
+        // Base58check: P2SH (3...) or P2PKH (V...)
+        version, hash, err := decodeBase58Check(address)
+        if err != nil || len(hash) != 20 {
+                return nil
+        }
+        switch version {
+        case 0x05: // P2SH: OP_HASH160 <20> OP_EQUAL (23 bytes)
+                script := make([]byte, 23)
+                script[0] = 0xa9
+                script[1] = 0x14
+                copy(script[2:], hash)
+                script[22] = 0x87
+                fmt.Printf("Pool address script (P2SH local): %s\n", hex.EncodeToString(script))
+                return script
+        case 0x46: // P2PKH: OP_DUP OP_HASH160 <20> OP_EQUALVERIFY OP_CHECKSIG (25 bytes)
+                script := make([]byte, 25)
+                script[0] = 0x76
+                script[1] = 0xa9
+                script[2] = 0x14
+                copy(script[3:], hash)
+                script[23] = 0x88
+                script[24] = 0xac
+                fmt.Printf("Pool address script (P2PKH local): %s\n", hex.EncodeToString(script))
+                return script
+        }
+        return nil
+}
+
+var b58Alphabet = []byte("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz")
+
+func decodeBase58Check(s string) (byte, []byte, error) {
+        n := new(big.Int)
+        for _, c := range s {
+                idx := bytes.IndexByte(b58Alphabet, byte(c))
+                if idx < 0 {
+                        return 0, nil, fmt.Errorf("invalid base58 character")
+                }
+                n.Mul(n, big.NewInt(58))
+                n.Add(n, big.NewInt(int64(idx)))
+        }
+        decoded := n.Bytes()
+        // Pad leading zeros
+        leadingZeros := 0
+        for _, c := range s {
+                if c == '1' {
+                        leadingZeros++
+                } else {
+                        break
+                }
+        }
+        full := make([]byte, leadingZeros+len(decoded))
+        copy(full[leadingZeros:], decoded)
+        if len(full) < 5 {
+                return 0, nil, fmt.Errorf("too short")
+        }
+        payload := full[:len(full)-4]
+        checksum := full[len(full)-4:]
+        h1 := sha256.Sum256(payload)
+        h2 := sha256.Sum256(h1[:])
+        for i := 0; i < 4; i++ {
+                if h2[i] != checksum[i] {
+                        return 0, nil, fmt.Errorf("invalid checksum")
+                }
+        }
+        return payload[0], payload[1:], nil
+}
+
+// bech32 charset
+const bech32Charset = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
+
+func decodeBech32Program(addr, expectedHRP string) []byte {
+        lower := strings.ToLower(addr)
+        sep := strings.LastIndex(lower, "1")
+        if sep < 0 {
+                return nil
+        }
+        hrp := lower[:sep]
+        if hrp != expectedHRP {
+                return nil
+        }
+        data := lower[sep+1:]
+        var values []byte
+        for _, c := range data {
+                idx := strings.IndexRune(bech32Charset, c)
+                if idx < 0 {
+                        return nil
+                }
+                values = append(values, byte(idx))
+        }
+        if len(values) < 6 {
+                return nil
+        }
+        // Strip 6-byte checksum
+        values = values[:len(values)-6]
+        if len(values) == 0 {
+                return nil
+        }
+        // First 5-bit value is the witness version — skip it
+        values = values[1:]
+        // Convert from 5-bit groups to 8-bit bytes
+        var result []byte
+        acc, bits := 0, 0
+        for _, v := range values {
+                acc = (acc << 5) | int(v)
+                bits += 5
+                for bits >= 8 {
+                        bits -= 8
+                        result = append(result, byte(acc>>bits))
+                        acc &= (1 << bits) - 1
+                }
+        }
+        return result
 }
 
 func (jm *JobManager) GetBlockTemplate() (*BlockTemplate, error) {
-	// BCH2 is pure Bitcoin Cash without SegWit - no rules needed
-	reqBody := `{"jsonrpc":"1.0","id":"forge","method":"getblocktemplate","params":[{}]}`
+	// VOID is pure Bitcoin Cash without SegWit - no rules needed
+	reqBody := `{"jsonrpc":"1.0","id":"voidcoin","method":"getblocktemplate","params":[{}]}`
 	
 	req, err := http.NewRequest("POST", jm.rpcURL, bytes.NewBufferString(reqBody))
 	if err != nil {
@@ -297,13 +371,8 @@ func (jm *JobManager) buildCoinbase(template *BlockTemplate) (string, string) {
 	binary.Write(&cb2, binary.LittleEndian, uint32(0xffffffff))
 	cb2.WriteByte(0x01)
 	binary.Write(&cb2, binary.LittleEndian, uint64(template.CoinbaseValue))
-	cb2.WriteByte(0x19)
-	cb2.WriteByte(0x76)
-	cb2.WriteByte(0xa9)
-	cb2.WriteByte(0x14)
-	cb2.Write(jm.pubkeyHash)
-	cb2.WriteByte(0x88)
-	cb2.WriteByte(0xac)
+	cb2.WriteByte(byte(len(jm.outputScript)))
+	cb2.Write(jm.outputScript)
 	binary.Write(&cb2, binary.LittleEndian, uint32(0))
 	
 	return hex.EncodeToString(cb1.Bytes()), hex.EncodeToString(cb2.Bytes())

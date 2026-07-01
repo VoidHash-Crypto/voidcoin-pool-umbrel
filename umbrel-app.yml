@@ -1,41 +1,35 @@
 manifestVersion: 1
-id: forge-pool
-name: Forge Pool
-tagline: Self-hosted BCH2 mining pool
-icon: https://hashforge.bch2.org/logo.png
+id: voidcoin-pool
+name: Void Pool
+tagline: Self-hosted VoidCoin mining pool
+icon: https://www.void-coin.net/assets/favicon-192.png
 category: bitcoin
-version: "1.1.1"
+version: "1.0.0"
 port: 3080
 description: >-
-  Run your own BCH2 mining pool with a single click. Forge Pool includes
-  everything you need: a full BCH2 node, stratum server, and web dashboard.
+  Run your own VoidCoin (VOID) mining pool with a single click. Void Pool includes
+  everything you need: a full VoidCoin node, stratum server, and web dashboard.
   Point your miners at your Umbrel and start mining to your own pool.
-
   Features:
-  - Built-in BCH2 node (auto-syncs on first run)
+  - Built-in VoidCoin node (auto-syncs on first run)
   - Solo and PPLNS mining modes
+  - Supports P2SH (3...) and P2QR (vqr1...) quantum-resistant addresses
   - Real-time hashrate and earnings dashboard
   - Automatic payouts
   - Variable difficulty (vardiff)
-  - Mobile-friendly web interface
-
-developer: BCH2 Team
-website: https://hashforge.bch2.org
-repo: https://github.com/BitcoincashII/forge-pool-umbrel
-support: https://github.com/BitcoincashII/forge-pool-umbrel/issues
+  - SHA256d algorithm — compatible with any standard SHA256d miner
+developer: VoidCoin Team
+website: https://www.void-coin.net
+repo: https://github.com/VoidHash-Crypto/voidcoin-pool-umbrel
+support: https://github.com/VoidHash-Crypto/voidcoin-pool-umbrel/issues
 gallery:
-  - https://hashforge.bch2.org/screenshots/dashboard.png
-  - https://hashforge.bch2.org/screenshots/miners.png
-  - https://hashforge.bch2.org/screenshots/blocks.png
-
+  - https://explorer.void-coin.net/screenshots/dashboard.png
 releaseNotes: >-
-  Bug fix release:
-  - Fix blocks not being saved to database
-  - Fix balance/payouts not displaying
-  - Add missing status column to blocks table
-
+  Initial VoidCoin release:
+  - Full VoidCoin node integration
+  - P2SH and P2QR address support
+  - SHA256d stratum server
 dependencies: []
-
 path: ""
 defaultUsername: ""
 defaultPassword: ""

@@ -26,7 +26,7 @@ func GetDBConnStr() string {
 	}
 	user := os.Getenv("DB_USER")
 	if user == "" {
-		user = "forge"
+		user = "voidpool"
 	}
 	password := os.Getenv("DB_PASSWORD")
 	if password == "" {
@@ -34,7 +34,7 @@ func GetDBConnStr() string {
 	}
 	dbname := os.Getenv("DB_NAME")
 	if dbname == "" {
-		dbname = "forgepool"
+		dbname = "voidpool"
 	}
 	sslmode := os.Getenv("DB_SSLMODE")
 	if sslmode == "" {
@@ -238,7 +238,7 @@ func SavePayoutAtomicWithSolo(minerID string, blockHeight int64, amount float64,
 		return fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
-	log.Printf("✅ Saved block %d and payout %.2f BCH2 for %s atomically", blockHeight, amount, minerID)
+	log.Printf("✅ Saved block %d and payout %.2f VOID for %s atomically", blockHeight, amount, minerID)
 	return nil
 }
 
@@ -661,7 +661,7 @@ func GetMinerBlockContributionsDB(minerID string) []MinerBlockContribution {
 			log.Printf("Warning: failed to scan block contribution: %v", err)
 			continue
 		}
-		// Calculate share percentage (50 BCH2 * 0.99 fee = 49.5 max reward)
+		// Calculate share percentage (50 VOID * 0.99 fee = 49.5 max reward)
 		c.SharePct = (c.Amount / 49.5) * 100
 		contributions = append(contributions, c)
 	}

@@ -1,8 +1,8 @@
-# Forge Pool Stratum Configuration
+# Void Pool Stratum Configuration
 # Auto-generated from environment variables
 
 pool:
-  name: "Forge Pool"
+  name: "Void Pool"
   address: "${POOL_ADDRESS}"
   fee: ${POOL_FEE}
 

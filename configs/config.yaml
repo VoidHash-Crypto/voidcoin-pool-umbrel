@@ -1,4 +1,4 @@
-# Forge Pool Umbrel Configuration
+# Void Pool Umbrel Configuration
 
 stratum:
   host: "0.0.0.0"

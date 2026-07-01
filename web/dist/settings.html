@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Pool Settings - Forge Pool</title>
+    <title>Pool Settings - Void Pool</title>
     <style>
         :root {
             --bg: #0a0a0a;
@@ -199,17 +199,17 @@
             <div class="section-content">
                 <div class="form-group">
                     <label class="form-label">Pool Wallet Address</label>
-                    <input type="text" id="poolWallet" class="form-input" placeholder="bitcoincashii:qz...">
-                    <div class="form-hint">BCH2 address for pool fees and block rewards</div>
+                    <input type="text" id="poolWallet" class="form-input" placeholder="void:qz...">
+                    <div class="form-hint">VoidCoin address for pool fees and block rewards</div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Pool Name</label>
-                    <input type="text" id="poolName" class="form-input" placeholder="My Forge Pool">
+                    <input type="text" id="poolName" class="form-input" placeholder="My Void Pool">
                     <div class="form-hint">Display name for your pool</div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Coinbase Tag</label>
-                    <input type="text" id="coinbaseTag" class="form-input" maxlength="20" placeholder="Forge">
+                    <input type="text" id="coinbaseTag" class="form-input" maxlength="20" placeholder="VoidCoin">
                     <div class="form-hint">Text embedded in mined blocks (max 20 chars)</div>
                 </div>
             </div>
@@ -224,7 +224,7 @@
                     <div class="form-hint">Fee deducted from block rewards (0-10%)</div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Minimum Payout (BCH2)</label>
+                    <label class="form-label">Minimum Payout (VOID)</label>
                     <input type="number" id="minPayout" class="form-input" placeholder="5.0" min="0.1" max="1000" step="0.1">
                     <div class="form-hint">Minimum balance required for payout (0.1-1000)</div>
                 </div>
@@ -270,8 +270,8 @@
 
                 document.getElementById('stratumPort').value = data.stratum_port ?? 3333;
                 document.getElementById('poolWallet').value = data.pool_wallet ?? '';
-                document.getElementById('poolName').value = data.pool_name || 'My Forge Pool';
-                document.getElementById('coinbaseTag').value = data.coinbase_tag || 'Forge';
+                document.getElementById('poolName').value = data.pool_name || 'My Void Pool';
+                document.getElementById('coinbaseTag').value = data.coinbase_tag || 'VoidCoin';
                 document.getElementById('soloFee').value = data.solo_fee ?? 0.5;
                 document.getElementById('minPayout').value = data.min_payout ?? 5.0;
                 document.getElementById('vardiffMinDiff').value = data.vardiff_min_diff ?? 32768;
@@ -306,8 +306,8 @@
                 const data = {
                     stratum_port: parseInt(document.getElementById('stratumPort').value) || 3333,
                     pool_wallet: document.getElementById('poolWallet').value.trim(),
-                    pool_name: document.getElementById('poolName').value.trim() || 'My Forge Pool',
-                    coinbase_tag: coinbaseTagVal || 'Forge',
+                    pool_name: document.getElementById('poolName').value.trim() || 'My Void Pool',
+                    coinbase_tag: coinbaseTagVal || 'VoidCoin',
                     pool_fee: feeValue,
                     solo_fee: feeValue,
                     min_payout: minPayoutVal !== '' ? parseFloat(minPayoutVal) : 5.0,

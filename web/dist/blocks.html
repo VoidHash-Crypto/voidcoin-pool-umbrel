@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Block History - Forge Pool</title>
+    <title>Block History - Void Pool</title>
     <style>
         :root {
             --bg: #0a0a0a;
@@ -246,7 +246,7 @@
                 // Calculate total reward
                 let totalReward = 0;
                 blocks.forEach(b => totalReward += (b.reward || 50));
-                document.getElementById('totalReward').textContent = totalReward.toFixed(2) + ' BCH2';
+                document.getElementById('totalReward').textContent = totalReward.toFixed(2) + ' VOID';
 
                 renderBlocks(blocks);
                 renderPagination(total, page);
@@ -280,7 +280,7 @@
                         </div>
                         <div class="block-hash">${escapeHtml(shortHash)}</div>
                     </div>
-                    <div class="block-reward">${escapeHtml((b.reward || 50).toFixed(2))} BCH2</div>
+                    <div class="block-reward">${escapeHtml((b.reward || 50).toFixed(2))} VOID</div>
                 </div>
             `}).join('');
         }
