@@ -23,8 +23,8 @@ RUN set -eux; \
     esac; \
     curl -L "https://github.com/VoidHash-Crypto/VoidCoin-Core/releases/download/v${VOIDCOIN_VERSION}/VoidCoin-${VOIDCOIN_VERSION}-${ARCH_SUFFIX}.tar.gz" | \
     tar -xz -C /tmp && \
-    cp /tmp/VoidCoin-${VOIDCOIN_VERSION}-Linux/voidcoind /usr/local/bin/ && \
-    cp /tmp/VoidCoin-${VOIDCOIN_VERSION}-Linux/voidcoin-cli /usr/local/bin/ && \
+    cp /tmp/VoidCoin-*-Linux/voidcoind /usr/local/bin/ && \
+    cp /tmp/VoidCoin-*-Linux/voidcoin-cli /usr/local/bin/ && \
     rm -rf /tmp/VoidCoin-* && \
     chmod +x /usr/local/bin/voidcoin*
 
