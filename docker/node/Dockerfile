@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     libminiupnpc17 \
     libnatpmp1 \
+    libevent-extra-2.1-7 \
     libevent-pthreads-2.1-7 \
     libevent-2.1-7 \
     libzmq5 \

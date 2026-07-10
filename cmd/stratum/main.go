@@ -634,13 +634,14 @@ func main() {
 		poolAddress = loadPoolAddressFromConfig()
 	}
 	if poolAddress == "" {
-		logger.Fatal("❌ POOL_ADDRESS is required. Set your VOID wallet address in Settings before mining.")
+		logger.Warn("⚠️  POOL_ADDRESS not set - stratum starting without mining address")
+		poolAddress = "vqr1placeholder"
 	}
 	// Validate address format
-	if !strings.HasPrefix(poolAddress, "void:q") {
-		logger.Fatal("❌ Invalid pool address format. Must be a VoidCoin address starting with 'void:q'",
-			zap.String("address", poolAddress))
-	}
+		if !strings.HasPrefix(poolAddress, "vqr1") && !strings.HasPrefix(poolAddress, "3") && poolAddress != "vqr1placeholder" {
+			logger.Warn("⚠️  Invalid pool address format. Must start with vqr1 or 3",
+				zap.String("address", poolAddress))
+		}
 
 	// Load defaults from stratum.yaml
 	poolFee = config.GetFloat64("pool.fee")
