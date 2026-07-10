@@ -1,6 +1,6 @@
 FROM ubuntu:24.04
 
-ARG VOIDCOIN_VERSION=1.0.3
+ARG VOIDCOIN_VERSION=1.0.5
 ARG TARGETARCH
 
 RUN apt-get update && apt-get install -y \

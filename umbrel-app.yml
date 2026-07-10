@@ -4,7 +4,7 @@ name: Void Pool
 tagline: Self-hosted VoidCoin mining pool
 icon: https://www.void-coin.net/assets/favicon-192.png
 category: bitcoin
-version: "1.0.0"
+version: "1.0.5"
 port: 3080
 description: >-
   Run your own VoidCoin (VOID) mining pool with a single click. Void Pool includes
@@ -25,10 +25,10 @@ support: https://github.com/VoidHash-Crypto/voidcoin-pool-umbrel/issues
 gallery:
   - https://explorer.void-coin.net/screenshots/dashboard.png
 releaseNotes: >-
-  Initial VoidCoin release:
-  - Full VoidCoin node integration
-  - P2SH and P2QR address support
-  - SHA256d stratum server
+  VoidCoin Core v1.0.5:
+  - VCIP-1 P2QR-TIMELOCK quantum-resistant address support
+  - QUD difficulty algorithm (activated at block 6,000)
+  - Updated node to VoidCoin Core v1.0.5
 dependencies: []
 path: ""
 defaultUsername: ""
