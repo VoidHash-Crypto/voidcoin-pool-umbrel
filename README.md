@@ -8,7 +8,7 @@ Self-hosted VoidCoin mining pool for Umbrel.
 
 1. Open your Umbrel dashboard
 2. Go to **App Store** → **Community App Stores** (three dots menu)
-3. Add this URL: `https://github.com/VoidHash-Crypto/umbrel-app-store`
+3. Add this URL: `https://github.com/VoidHash-Crypto/voidcoin-umbrel-store`
 4. Find "Void Pool" in the app store and click **Install**
 
 ### Option 2: Standalone Docker Compose
